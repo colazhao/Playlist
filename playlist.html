@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>歌单管理</title>
+	<meta name="keywords" content="">
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'/>
+	<link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+	<h1>歌单管理</h1>
+	<div class="seach">
+		<div class="addobj">
+			<input type="text" v-model="input" placeholder="请输入管理员姓名">
+			<a class="btn" href="javascript:;" @click="add">添加</a>
+			<a class="btn" href="javascript:;" @click="search">搜索</a>
+			<a class="btn" href="javascript:;" @click="delete">删除</a>
+		</div>
+
+	</div>
+	
+	<div class="main">
+		<ul class="ul">
+			<li v-for="(index,value) in json">
+				<div class="lileft">
+					<h1 :class="{'red':value.active}">{{value.name}}</h1>
+					<div class="lileftb">
+						<div class="lileftbt">
+							<span>歌名：</span>
+							<input class="songname" type="text" v-model="json[index].searchSong">
+							<!--<span>{{json[index].searchSong}}</span>-->
+						</div>
+						<div class="lileftbt">
+							<span>歌手：</span>
+							<input class="singer" type="text" v-model="json[index].searchSinger">
+						</div>
+						<div class="lileftbt lileftbtt">
+							<a class="btn addsong" href="javascript:;" @click="addsong(index)">添加</a>
+							<a class="btn seachsong" href="javascript:;" @click="serachsong(index)">搜索</a>
+							<a class="btn updatesong" href="javascript:;" @click="updetasong(index)">修改</a>
+						</div>
+					</div>
+				</div>
+				<div class="liright">
+					<table class="gqtab" border="0" cellpadding="0" cellspacing="0" >
+						<tr><th>歌名</th><th>歌手</th><th>操作</th></tr>
+						<tr v-for="(indexz,item) in value.info">
+							<td>{{item.song}}</td><td>{{item.singer}}</td>
+							<td>
+							<a class="btn sc" href="javascript:;" @click="deletesong(index,indexz)">删除</a>
+
+							</td>
+						</tr>
+					</table>
+				</div>
+			</li>
+		</ul>
+	</div>
+
+
+</body>
+
+<script src="js/jquery.min.js"></script>
+<script src="js/vue.js"></script>
+<script src="js/vue-resource.js"></script>
+<script>
+
+    window.onload=function () {
+
+        var singlist=new Vue({
+            el:"body",
+            data:{
+                json:[],
+                input:"",
+            },
+            created:function (){
+                var self=this;
+                $.ajax({
+                    url:"static/songmanger.json",
+                    type:"post",
+                    data:"",
+                    dataType:"json",
+                    success:function (data) {
+                        self.json=data;
+                    },
+                    error:function (res) {
+                        alert(res.status);
+                    }
+                })
+            },
+            methods:{
+                add:function () {
+                    if(this.input==""){
+                        alert("请输入");
+                    }else{
+                        this.json.push({name:this.input,active:false,searchSong:"",searchSinger:"",info:[]});
+                        this.input=""
+                    }
+
+                },
+                search:function () {
+                    if(this.input==""){
+                        alert("请输入");
+                    }else {
+                        var that = this;
+                        that.json.forEach(function (e, index) {
+                            e.active = false;
+                            if (e.name == that.input) {
+                                e.active = true;
+                            }
+
+                        });
+                        this.input=""
+                        return false;
+                    }
+                },
+                delete:function () {
+                    if(this.input==""){
+                        alert("请输入");
+                    }else {
+                        var that = this;
+                        that.json.forEach(function (e) {
+                            if (e.name == that.input) {
+                                var wz = that.json.indexOf(e);
+                                that.json.splice(wz, 1);
+                                alert("删除成功");
+
+                            }
+                        });
+                        this.input=""
+                        return false;
+                    }
+                },
+                addsong:function (index) {
+                    var that=this;
+                    if(this.json[index].searchSong==""&&this.json[index].searchSinger==""){
+                        alert("请输入歌曲名或歌手");
+                    }else{
+                        this.json[index].info.push({song:that.json[index].searchSong,singer:that.json[index].searchSinger});
+                        that.json[index].searchSong="", that.json[index].searchSinger=""
+                    }
+                },
+                serachsong:function (index) {
+                    var that=this;
+                    if(this.json[index].searchSong==""&&this.json[index].searchSinger==""){
+                        alert("请输入歌曲名或歌手");
+                    }else{
+                        this.json[index].info.forEach(function (item,index) {
+                            if(item.song==that.json[index].searchSong||item.singer==that.json[index].searchSinger){
+                                alert("歌曲名："+item.song+"    "+"歌手："+item.singer);
+                            }
+                        });
+                        that.json[index].searchSong="", that.json[index].searchSinger=""
+                    }
+                },
+                updetasong:function (index) {
+                    var that=this;
+                    if(this.json[index].searchSong==""&&this.json[index].searchSinger==""){
+                        alert("请输入歌曲名或歌手");
+                    }else{
+                        this.json[index].info.forEach(function (item,index) {
+                            if(item.song==that.json[index].searchSong){
+                                item.singer=that.json[index].searchSinger;
+                                alert("歌曲名："+item.song+"    "+"歌手："+item.singer);
+                            }else if(item.singer==that.json[index].searchSinger){
+                                item.song=that.json[index].searchSong;
+                                alert("歌曲名："+item.song+"    "+"歌手："+item.singer);
+                            }
+                        });
+                        that.json[index].searchSong="", that.json[index].searchSinger=""
+                        return false;
+                    }
+                },
+                deletesong:function (index,indexz) {
+                    this.json[index].info.splice(indexz,1);
+                }
+            }
+        });
+    }
+
+
+
+</script>
+</html>
