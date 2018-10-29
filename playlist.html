@@ -78,8 +78,9 @@
             created:function (){
                 var self=this;
                 $.ajax({
-                    url:"static/songmanger.json",
-                    type:"post",
+                    //url:"static/songmanger.json",
+					url:"https://colazhao.github.io/Playlist/static/songmanger.json",
+                    type:"get",
                     data:"",
                     dataType:"json",
                     success:function (data) {
